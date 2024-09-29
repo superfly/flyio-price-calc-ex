@@ -12,7 +12,7 @@
 
 <hr class="my-8" />
 
-<h1 class="text-4xl font-bold">Machine Groups</h1>
+<h1 class="text-4xl font-bold mb-4">Machine Groups</h1>
 
 <form>
 <table class="table border  border-gray-600">
@@ -131,4 +131,45 @@
 </table>
 </form>
 
-<h1 class="mt-12 text-4xl font-bold">Bandwidth per region</h1>
+<h1 class="mt-12 text-4xl font-bold mb-4">Bandwidth per region</h1>
+
+<form>
+<table class="table border  border-gray-600">
+  <thead class="bg-gray-300">
+    <tr>
+      <th class="border border-gray-600 p-2">Region</th>
+      <th class="border border-gray-600 p-2">Outgoing Bandwidth</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for {region, value} <- @bandwidth do %>
+    <tr>
+      <th class="border border-gray-600 text-center"><%= region %></th>
+      <td class="border border-gray-600 text-center">
+        <input
+          class="my-4"
+          inputmode="numeric"
+          type="number"
+          min="0"
+          max="100"
+          step="1"
+          value={value}
+          name={region}
+        />
+      </td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+</form>
+
+<h1 class="mt-12 text-4xl font-bold mb-4">Total resource usage and cost estimate</h1>
+
+<table>
+<%= for {key, value} <- @price do %>
+<tr class="even:bg-gray-200">
+  <td class="text-right p-2"><%= key %></td>
+  <td class="p-2"><%= value %></td>
+</tr>
+<% end %>
+</table>

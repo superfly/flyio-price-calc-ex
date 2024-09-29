@@ -7,8 +7,14 @@ defmodule FlyioPriceCalcWeb.Calc do
     {:ok, assign(socket,
       groups: [%Group{region: "iad", count: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}],
       regions: FlyioPriceCalc.Regions.list_regions(),
-      cpu_types: ["shared", "dedicated"]
-    )}
+      cpu_types: ["shared", "dedicated"],
+      bandwidth: %{"iad" => 0}
+    ) |> price}
+  end
+
+  def price(socket) do
+    socket
+    |> assign(price: FlyioPriceCalc.Price.calculate_price(socket.assigns))
   end
 
   def handle_event("add-machine", _, socket) do
