@@ -3,12 +3,28 @@ defmodule FlyioPriceCalcWeb.Calc do
 
   alias FlyioPriceCalc.Group
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    regions = FlyioPriceCalc.Regions.list_regions()
+
+    region = case session |> Enum.into(%{}) do
+      %{"fly-request-id" => request_id} when is_binary(request_id) ->
+        region = request_id |> String.split("-") |> List.last
+
+        if region in regions do
+          region
+        else
+          "iad"
+        end
+
+      _ -> "iad"
+    end
+
     {:ok, assign(socket,
-      groups: [%Group{region: "iad", number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}],
-      regions: FlyioPriceCalc.Regions.list_regions(),
+      region: region,
+      groups: [%Group{region: region, number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}],
+      regions: regions,
       cpu_types: ["shared", "dedicated"],
-      bandwidth: %{"iad" => 0}
+      bandwidth: %{region => 0}
     ) |> price}
   end
 
@@ -19,25 +35,25 @@ defmodule FlyioPriceCalcWeb.Calc do
 
   def handle_event("add-machine", _, socket) do
     {:noreply, update(socket, :groups, fn groups ->
-        groups ++ [%Group{region: "iad", number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}]
+        groups ++ [%Group{region: socket.assigns.region, number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}]
     end) |> price}
   end
 
   def handle_event("add-pg-dev", _, socket) do
     {:noreply, update(socket, :groups, fn groups ->
-        groups ++ [%Group{region: "iad", number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 1}]
+        groups ++ [%Group{region: socket.assigns.region, number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 1}]
     end) |> price}
   end
 
   def handle_event("add-pg-prod-small", _, socket) do
     {:noreply, update(socket, :groups, fn groups ->
-        groups ++ [%Group{region: "iad", number: 3, cpu_type: "shared", cpu_count: 2, ram: 4096, vol_size: 40}]
+        groups ++ [%Group{region: socket.assigns.region, number: 3, cpu_type: "shared", cpu_count: 2, ram: 4096, vol_size: 40}]
     end) |> price}
   end
 
   def handle_event("add-pg-prod-large", _, socket) do
     {:noreply, update(socket, :groups, fn groups ->
-        groups ++ [%Group{region: "iad", number: 3, cpu_type: "shared", cpu_count: 4, ram: 8192, vol_size: 80}]
+        groups ++ [%Group{region: socket.assigns.region, number: 3, cpu_type: "shared", cpu_count: 4, ram: 8192, vol_size: 80}]
     end) |> price}
   end
 
