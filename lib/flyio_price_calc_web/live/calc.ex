@@ -42,13 +42,26 @@ defmodule FlyioPriceCalcWeb.Calc do
   end
 
   def handle_event("change-groups", formdata, socket) do
-    groups = (formdata
+    groups = formdata
     |> Enum.filter(fn {key, _value} -> key |> String.contains?("-") end)
     |> Enum.group_by(fn {key, _value} -> String.split(key, "-") |> List.last() end)
     |> Enum.map(fn {_row, pairs} -> pairs |> Map.new(fn {key, value} ->
       {String.split(key, "-") |> List.first, value} end) |> Group.from_map()
-    end))
+    end)
 
-    {:noreply, assign(socket, groups: groups) |> price}
+    bandwidth = groups
+    |> Enum.map(fn group -> {group.region, 0} end) |> Enum.into(%{})
+    |> Map.merge(socket.assigns.bandwidth)
+
+    {:noreply, assign(socket, groups: groups, bandwidth: bandwidth) |> price}
+  end
+
+  def handle_event("change-bandwidth", formdata, socket) do
+    bandwidth = formdata
+    |> Enum.filter(fn {key, _value} -> key |> String.contains?("-") end)
+    |> Enum.map(fn {key, value} -> {String.split(key, "-") |> List.last(), String.to_integer(value)} end)
+    |> Enum.into(%{})
+
+    {:noreply, assign(socket, bandwidth: bandwidth) |> price}
   end
 end

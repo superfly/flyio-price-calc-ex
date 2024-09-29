@@ -133,7 +133,7 @@
 
 <h1 class="mt-12 text-4xl font-bold mb-4">Bandwidth per region</h1>
 
-<form>
+<form phx-change="change-bandwidth">
 <table class="table border  border-gray-600">
   <thead class="bg-gray-300">
     <tr>
@@ -154,7 +154,7 @@
           max="100"
           step="1"
           value={value}
-          name={region}
+          name={"region-#{region}"}
         />
       </td>
     </tr>
