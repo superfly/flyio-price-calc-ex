@@ -14,7 +14,7 @@
 
 <h1 class="text-4xl font-bold mb-4">Machine Groups</h1>
 
-<form>
+<form phx-change="change-groups">
 <table class="table border  border-gray-600">
   <thead class="bg-gray-300">
     <tr>
@@ -50,12 +50,12 @@
           min="0"
           max="100"
           step="1"
-          value={group.count}
-          name={"count-#{index+1}"}
+          value={group.number}
+          name={"number-#{index+1}"}
         />
       </td>
       <td class="border border-gray-600 align-top text-center">
-        <select class="mt-4" name={"cpu-type-#{index+1}"}>
+        <select class="mt-4" name={"cpu_type-#{index+1}"}>
           <%= for cpu_type <- @cpu_types do %>
           <%= if cpu_type == group.cpu_type do %>
           <option value={cpu_type}} selected=""><%= cpu_type %></option>
@@ -72,7 +72,7 @@
           min="1"
           max="16"
           step="1"
-          name={"cpu-count-#{index+1}"}
+          name={"cpu_count-#{index+1}"}
           value={group.cpu_count}
         />
       </td>
@@ -94,7 +94,7 @@
           min="0"
           max="500"
           step="1"
-          name={"vol-size-#{index+1}"}
+          name={"vol_size-#{index+1}"}
           value={group.vol_size}
         /> GB
         <div id="group-1"></div>
