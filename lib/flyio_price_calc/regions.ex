@@ -3,6 +3,8 @@ defmodule FlyioPriceCalc.Regions do
   This module provides functionalities to handle regions for Fly.io price calculations.
   """
 
+  @default "iad"
+
   @regions ([
     "ams",
     "arn",
@@ -47,5 +49,21 @@ defmodule FlyioPriceCalc.Regions do
   """
   def list_regions do
     @regions
+  end
+
+  def get_default do
+    @default
+  end
+
+  def get_region(edge) do
+    case edge do
+      _ when edge in @regions -> edge
+      "chi" -> "ord"
+      "nyc" -> "ewr"
+      "mel" -> "syd"
+      "ist" -> "waw"
+      "dxb" -> "bom"
+      _ -> @default
+    end
   end
 end

@@ -2,27 +2,19 @@ defmodule FlyioPriceCalcWeb.Calc do
   use FlyioPriceCalcWeb, :live_view
 
   alias FlyioPriceCalc.Group
+  alias FlyioPriceCalc.Regions
 
   def mount(_params, session, socket) do
-    regions = FlyioPriceCalc.Regions.list_regions()
-
     region = case session |> Enum.into(%{}) do
       %{"fly-request-id" => request_id} when is_binary(request_id) ->
-        region = request_id |> String.split("-") |> List.last
-
-        if region in regions do
-          region
-        else
-          "iad"
-        end
-
-      _ -> "iad"
+        Regions.get_region(request_id |> String.split("-") |> List.last)
+      _ -> Regions.get_default()
     end
 
     {:ok, assign(socket,
       region: region,
       groups: [%Group{region: region, number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}],
-      regions: regions,
+      regions: Regions.list_regions(),
       cpu_types: ["shared", "dedicated"],
       bandwidth: %{region => 0}
     ) |> price}
