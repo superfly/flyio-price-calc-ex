@@ -8,6 +8,7 @@ defmodule FlyioPriceCalcWeb.Router do
     plug :put_root_layout, html: {FlyioPriceCalcWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug FlyioPriceCalcWeb.Plugs.FlyRequest
   end
 
   pipeline :api do
@@ -17,7 +18,7 @@ defmodule FlyioPriceCalcWeb.Router do
   scope "/", FlyioPriceCalcWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", Calc
   end
 
   # Other scopes may use custom stacks.

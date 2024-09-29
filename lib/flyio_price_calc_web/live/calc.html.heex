@@ -1,0 +1,134 @@
+<div class="w-full px-12 py-16 bg-slate-200">
+  <h1 class="text-4xl">Fly.io Price Estimator</h1>
+  <h2 class="my-4 text-lg text-slate-400">What will this set of resources probably cost?</h2>
+</div>
+
+<ol class="mt-12 px-12 list-decimal">
+  <li>Create one machine group per set of identically-configured machines in the same region.</li>
+  <li>Tune the machine count and resources per machine for each machine group.</li>
+  <li>Tune the outgoing bandwidth used in each region</li>
+  <li>The cost estimate updates automatically</li>
+</ol>
+
+<hr class="my-8" />
+
+<h1 class="text-4xl font-bold">Machine Groups</h1>
+
+<form>
+<table class="table border  border-gray-600">
+  <thead class="bg-gray-300">
+    <tr>
+      <th class="border border-gray-600">Group</th>
+      <th class="border border-gray-600">Region</th>
+      <th class="border border-gray-600"># Machines</th>
+      <th class="border border-gray-600">CPU type</th>
+      <th class="border border-gray-600">Cores per machine</th>
+      <th class="border border-gray-600">RAM per machine</th>
+      <th class="border border-gray-600">Volume storage per machine</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for {group, index} <- Enum.with_index(@groups) do %>
+    <tr>
+      <th class="border border-gray-600 text-center"><%= index + 1 %></th>
+      <td class="border border-gray-600 align-top text-center">
+        <select class="mt-4" name={"region-#{index+1}"}>
+          <%= for region <- @regions do %>
+          <%= if region == group.region do %>
+          <option value={region} selected=""><%= region %></option>
+          <% else %>
+          <option value={region}><%= region %></option>
+          <% end %>
+          <% end %>
+        </select>
+      </td>
+      <td class="border border-gray-600 align-top">
+        <input
+          class="mt-4"
+          inputmode="numeric"
+          type="number"
+          min="0"
+          max="100"
+          step="1"
+          value={group.count}
+          name={"count-#{index+1}"}
+        />
+      </td>
+      <td class="border border-gray-600 align-top text-center">
+        <select class="mt-4" name={"cpu-type-#{index+1}"}>
+          <%= for cpu_type <- @cpu_types do %>
+          <%= if cpu_type == group.cpu_type do %>
+          <option value={cpu_type}} selected=""><%= cpu_type %></option>
+          <% else %>
+          <option value={cpu_type}><%= cpu_type %></option>
+          <% end %>
+          <% end %>
+        </select>
+      </td>
+      <td class="border border-gray-600 align-top text-center">
+        <input
+          class="mt-4"
+          type="number"
+          min="1"
+          max="16"
+          step="1"
+          name={"cpu-count-#{index+1}"}
+          value={group.cpu_count}
+        />
+      </td>
+      <td class="border border-gray-600 align-top text-center">
+        <input
+          class="mt-4"
+          type="number"
+          min="256"
+          max="65536"
+          step="256"
+          name={"ram-#{index+1}"}
+          value={group.ram}
+        /> MB
+      </td>
+      <td class="border border-gray-600 align-top text-center">
+        <input
+          class="mt-4"
+          type="number"
+          min="0"
+          max="500"
+          step="1"
+          name={"vol-size-#{index+1}"}
+          value={group.vol_size}
+        /> GB
+        <div id="group-1"></div>
+      </td>
+    </tr>
+    <% end %>
+
+    <tr id="addmore">
+      <td colspan="2">
+        <input type="hidden" name="nextmachine" value="1" />
+        <button type="button" phx-click="add-machine"
+          class="bg-cyan-700 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
+          Add Machine Group
+        </button>
+      </td>
+      <td colspan="5" class="bg-cyan-200">
+        <p>
+          Add Postgres:
+          <a phx-click="add-pg-dev" class="text-blue-600 hover:cursor-pointer hover:underline">
+            Development - single 1x/256MB/1GB node
+          </a>
+           |
+          <a phx-click="add-pg-prod-small" class="text-blue-600 hover:cursor-pointer hover:underline">
+            Production - three 2x/4GB/40GB nodes
+          </a>
+          |
+          <a phx-click="add-pg-prod-large" class="text-blue-600 hover:cursor-pointer hover:underline">
+            Production - three 3x/8GB/80GB nodes
+          </a>
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</form>
+
+<h1 class="mt-12 text-4xl font-bold">Bandwidth per region</h1>
