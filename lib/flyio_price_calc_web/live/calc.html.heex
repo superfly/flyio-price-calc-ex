@@ -169,7 +169,11 @@
 <%= for {key, value} <- @price do %>
 <tr class="even:bg-gray-200">
   <td class="text-right p-2"><%= key %></td>
-  <td class="p-2"><%= value |> Currency.number_to_currency %></td>
+  <td class="text-right p-2"><%= value |> Currency.number_to_currency %></td>
 </tr>
 <% end %>
+<tr class="bg-green-200">
+  <td class="text-right p-2">Total</td>
+  <td class="text-right p-2"><%= @price |> Map.values |> Enum.sum |> Currency.number_to_currency %></td>
+</tr>
 </table>
