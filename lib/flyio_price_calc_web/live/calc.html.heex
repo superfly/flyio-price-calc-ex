@@ -58,7 +58,7 @@
         <select class="mt-4" name={"cpu_type-#{index+1}"} value={group.cpu_type}>
           <%= for cpu_type <- @cpu_types do %>
           <%= if cpu_type == group.cpu_type do %>
-          <option value={cpu_type}} selected=""><%= cpu_type %></option>
+          <option value={cpu_type} selected=""><%= cpu_type %></option>
           <% else %>
           <option value={cpu_type}><%= cpu_type %></option>
           <% end %>
