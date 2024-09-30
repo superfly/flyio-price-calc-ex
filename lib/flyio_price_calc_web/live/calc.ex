@@ -69,7 +69,7 @@ defmodule FlyioPriceCalcWeb.Calc do
   def handle_event("change-bandwidth", formdata, socket) do
     bandwidth = formdata
     |> Enum.filter(fn {key, _value} -> key |> String.starts_with?("region-") end)
-    |> Enum.map(fn {key, value} -> {String.split(key, "-") |> List.last(), String.to_integer(value)} end)
+    |> Enum.map(fn {key, value} -> {String.split(key, "-") |> List.last(), Group.to_integer(value)} end)
     |> Enum.into(%{})
 
     {:noreply, assign(socket, bandwidth: bandwidth) |> price}
