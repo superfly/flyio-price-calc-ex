@@ -44,6 +44,45 @@ defmodule FlyioPriceCalc.Regions do
     "yyz"
   ])
 
+  @groups %{
+    "ams" => :eu,
+    "arn" => :na,
+    "atl" => :na,
+    "bog" => :sa,
+    "bom" => :in,
+    "bos" => :na,
+    "cdg" => :eu,
+    "den" => :na,
+    "dfw" => :na,
+    "ewr" => :na,
+    "eze" => :sa,
+    "fra" => :eu,
+    "gdl" => :na,
+    "gig" => :sa,
+    "gru" => :sa,
+    "hkg" => :ap,
+    "iad" => :na,
+    "jnb" => :af,
+    "lax" => :na,
+    "lhr" => :eu,
+    "maa" => :eu,
+    "mad" => :eu,
+    "mia" => :na,
+    "nrt" => :ap,
+    "ord" => :na,
+    "otp" => :eu,
+    "phx" => :na,
+    "qro" => :na,
+    "scl" => :sa,
+    "sea" => :na,
+    "sin" => :ap,
+    "sjc" => :na,
+    "syd" => :oc,
+    "waw" => :eu,
+    "yul" => :na,
+    "yyz" => :na
+  }
+
   @doc """
   Returns the list of available regions.
   """
@@ -65,5 +104,9 @@ defmodule FlyioPriceCalc.Regions do
       "dxb" -> "bom"
       _ -> @default
     end
+  end
+
+  def get_group(region) do
+    Map.get(@groups, region, :na)
   end
 end

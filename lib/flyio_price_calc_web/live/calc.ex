@@ -4,6 +4,8 @@ defmodule FlyioPriceCalcWeb.Calc do
   alias FlyioPriceCalc.Group
   alias FlyioPriceCalc.Regions
 
+  alias Number.Currency
+
   def mount(_params, session, socket) do
     region = case session |> Enum.into(%{}) do
       %{"fly-request-id" => request_id} when is_binary(request_id) ->
@@ -15,7 +17,7 @@ defmodule FlyioPriceCalcWeb.Calc do
       region: region,
       groups: [%Group{region: region, number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}],
       regions: Regions.list_regions(),
-      cpu_types: ["shared", "dedicated"],
+      cpu_types: ["shared", "performance"],
       bandwidth: %{region => 0}
     ) |> price}
   end
@@ -66,7 +68,7 @@ defmodule FlyioPriceCalcWeb.Calc do
 
   def handle_event("change-bandwidth", formdata, socket) do
     bandwidth = formdata
-    |> Enum.filter(fn {key, _value} -> key |> String.contains?("-") end)
+    |> Enum.filter(fn {key, _value} -> key |> String.starts_with?("region-") end)
     |> Enum.map(fn {key, value} -> {String.split(key, "-") |> List.last(), String.to_integer(value)} end)
     |> Enum.into(%{})
 

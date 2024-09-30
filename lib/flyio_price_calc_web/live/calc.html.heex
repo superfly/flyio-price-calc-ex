@@ -55,7 +55,7 @@
         />
       </td>
       <td class="border border-gray-600 align-top text-center">
-        <select class="mt-4" name={"cpu_type-#{index+1}"}>
+        <select class="mt-4" name={"cpu_type-#{index+1}"} value={group.cpu_type}>
           <%= for cpu_type <- @cpu_types do %>
           <%= if cpu_type == group.cpu_type do %>
           <option value={cpu_type}} selected=""><%= cpu_type %></option>
@@ -169,7 +169,7 @@
 <%= for {key, value} <- @price do %>
 <tr class="even:bg-gray-200">
   <td class="text-right p-2"><%= key %></td>
-  <td class="p-2"><%= value %></td>
+  <td class="p-2"><%= value |> Currency.number_to_currency %></td>
 </tr>
 <% end %>
 </table>
