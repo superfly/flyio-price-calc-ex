@@ -3,3 +3,40 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+.accordion { position: relative;}
+
+.accordion > input[type="checkbox"] {
+    position: absolute;
+    z-index: 999; /*so you can click on the :after */
+    top: 0; left: 0;
+    width: 100%;
+    min-height: 2em; 
+    opacity: 0;
+    appearance: none;
+}
+
+.accordion form {
+   overflow: hidden;
+   max-height: 0;
+}
+
+.accordion label:after {
+    content: '▾';
+    position: absolute;
+    right: .5em;
+    top: 0;
+}
+
+.accordion > input[type="checkbox"]:active + label {
+  background: #ccc; 
+}
+
+.accordion > input[type="checkbox"]:checked ~ form {
+    height: auto;
+    max-height: 12em;
+}
+
+.accordion > input[type="checkbox"]:checked + label:after {
+    content: '▴';
+}

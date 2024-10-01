@@ -15,165 +15,228 @@
 <h1 class="text-4xl font-bold mb-4">Machine Groups</h1>
 
 <form phx-change="change-groups">
-<table class="table border  border-gray-600">
-  <thead class="bg-gray-300">
-    <tr>
-      <th class="border border-gray-600">Group</th>
-      <th class="border border-gray-600">Region</th>
-      <th class="border border-gray-600"># Machines</th>
-      <th class="border border-gray-600">CPU type</th>
-      <th class="border border-gray-600">Cores per machine</th>
-      <th class="border border-gray-600">RAM per machine</th>
-      <th class="border border-gray-600">Volume storage per machine</th>
-    </tr>
-  </thead>
-  <tbody>
-    <%= for {group, index} <- Enum.with_index(@groups) do %>
-    <tr>
-      <th class="border border-gray-600 text-center"><%= index + 1 %></th>
-      <td class="border border-gray-600 align-top text-center">
-        <select class="mt-4" name={"region-#{index+1}"}>
-          <%= for region <- @regions do %>
-          <%= if region == group.region do %>
-          <option value={region} selected=""><%= region %></option>
-          <% else %>
-          <option value={region}><%= region %></option>
-          <% end %>
-          <% end %>
-        </select>
-      </td>
-      <td class="border border-gray-600 align-top">
-        <input
-          class="mt-4"
-          inputmode="numeric"
-          type="number"
-          min="0"
-          max="100"
-          step="1"
-          value={group.number}
-          name={"number-#{index+1}"}
-        />
-      </td>
-      <td class="border border-gray-600 align-top text-center">
-        <select class="mt-4" name={"cpu_type-#{index+1}"} value={group.cpu_type}>
-          <%= for cpu_type <- @cpu_types do %>
-          <%= if cpu_type == group.cpu_type do %>
-          <option value={cpu_type} selected=""><%= cpu_type %></option>
-          <% else %>
-          <option value={cpu_type}><%= cpu_type %></option>
-          <% end %>
-          <% end %>
-        </select>
-      </td>
-      <td class="border border-gray-600 align-top text-center">
-        <input
-          class="mt-4"
-          type="number"
-          min="1"
-          max="16"
-          step="1"
-          name={"cpu_count-#{index+1}"}
-          value={group.cpu_count}
-        />
-      </td>
-      <td class="border border-gray-600 align-top text-center">
-        <input
-          class="mt-4"
-          type="number"
-          min="256"
-          max="65536"
-          step="256"
-          name={"ram-#{index+1}"}
-          value={group.ram}
-        /> MB
-      </td>
-      <td class="border border-gray-600 align-top text-center">
-        <input
-          class="mt-4"
-          type="number"
-          min="0"
-          max="500"
-          step="1"
-          name={"vol_size-#{index+1}"}
-          value={group.vol_size}
-        /> GB
-        <div id="group-1"></div>
-      </td>
-    </tr>
-    <% end %>
+  <table class="table border  border-gray-600">
+    <thead class="bg-gray-300">
+      <tr>
+        <th class="border border-gray-600">Group</th>
+        <th class="border border-gray-600">Region</th>
+        <th class="border border-gray-600"># Machines</th>
+        <th class="border border-gray-600">Hours</th>
+        <th class="border border-gray-600">CPU type</th>
+        <th class="border border-gray-600">Cores per machine</th>
+        <th class="border border-gray-600">RAM per machine</th>
+        <th class="border border-gray-600">Volume storage per machine</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {group, index} <- Enum.with_index(@groups) do %>
+        <tr>
+          <th class="border border-gray-600 text-center"><%= index + 1 %></th>
+          <td class="border border-gray-600 align-top text-center">
+            <select class="mt-4" name={"region-#{index+1}"}>
+              <%= for region <- @regions do %>
+                <%= if region == group.region do %>
+                  <option value={region} selected=""><%= region %></option>
+                <% else %>
+                  <option value={region}><%= region %></option>
+                <% end %>
+              <% end %>
+            </select>
+          </td>
+          <td class="border border-gray-600 align-top text-center">
+            <input
+              class="mt-4"
+              inputmode="numeric"
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value={group.number}
+              name={"number-#{index+1}"}
+            />
+          </td>
+          <td class="border border-gray-600 align-top text-center">
+            <input
+              class="mt-4"
+              inputmode="numeric"
+              type="number"
+              min="0"
+              max="730"
+              step="1"
+              value={group.hours}
+              name={"hours-#{index+1}"}
+            />
+          </td>
+          <td class="border border-gray-600 align-top text-center">
+            <select class="mt-4" name={"cpu_type-#{index+1}"} value={group.cpu_type}>
+              <%= for cpu_type <- @cpu_types do %>
+                <%= if cpu_type == group.cpu_type do %>
+                  <option value={cpu_type} selected=""><%= cpu_type %></option>
+                <% else %>
+                  <option value={cpu_type}><%= cpu_type %></option>
+                <% end %>
+              <% end %>
+            </select>
+          </td>
+          <td class="border border-gray-600 align-top text-center">
+            <input
+              class="mt-4"
+              type="number"
+              min="1"
+              max="16"
+              step="1"
+              name={"cpu_count-#{index+1}"}
+              value={group.cpu_count}
+            />
+          </td>
+          <td class="border border-gray-600 align-top text-center">
+            <input
+              class="mt-4"
+              type="number"
+              min="256"
+              max="65536"
+              step="256"
+              name={"ram-#{index+1}"}
+              value={group.ram}
+            /> MB
+          </td>
+          <td class="border border-gray-600 align-top text-center">
+            <input
+              class="mt-4"
+              type="number"
+              min="0"
+              max="500"
+              step="1"
+              name={"vol_size-#{index+1}"}
+              value={group.vol_size}
+            /> GB
+            <div id="group-1"></div>
+          </td>
+        </tr>
+      <% end %>
 
-    <tr id="addmore">
-      <td colspan="2">
-        <input type="hidden" name="nextmachine" value="1" />
-        <button type="button" phx-click="add-machine"
-          class="bg-cyan-700 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
-          Add Machine Group
-        </button>
-      </td>
-      <td colspan="5" class="bg-cyan-200">
-        <p>
-          Add Postgres:
-          <a phx-click="add-pg-dev" class="text-blue-600 hover:cursor-pointer hover:underline">
-            Development - single 1x/256MB/1GB node
-          </a>
-           |
-          <a phx-click="add-pg-prod-small" class="text-blue-600 hover:cursor-pointer hover:underline">
-            Production - three 2x/4GB/40GB nodes
-          </a>
-          |
-          <a phx-click="add-pg-prod-large" class="text-blue-600 hover:cursor-pointer hover:underline">
-            Production - three 3x/8GB/80GB nodes
-          </a>
-        </p>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      <tr id="addmore">
+        <td colspan="2">
+          <input type="hidden" name="nextmachine" value="1" />
+          <button
+            type="button"
+            phx-click="add-machine"
+            class="bg-cyan-700 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded"
+          >
+            Add Machine Group
+          </button>
+        </td>
+        <td colspan="5" class="bg-cyan-200">
+          <p>
+            Add Postgres:
+            <a phx-click="add-pg-dev" class="text-blue-600 hover:cursor-pointer hover:underline">
+              Development - single 1x/256MB/1GB node
+            </a>
+            |
+            <a
+              phx-click="add-pg-prod-small"
+              class="text-blue-600 hover:cursor-pointer hover:underline"
+            >
+              Production - three 2x/4GB/40GB nodes
+            </a>
+            |
+            <a
+              phx-click="add-pg-prod-large"
+              class="text-blue-600 hover:cursor-pointer hover:underline"
+            >
+              Production - three 3x/8GB/80GB nodes
+            </a>
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </form>
 
 <h1 class="mt-12 text-4xl font-bold mb-4">Bandwidth per region</h1>
 
 <form phx-change="change-bandwidth">
-<table class="table border  border-gray-600">
-  <thead class="bg-gray-300">
-    <tr>
-      <th class="border border-gray-600 p-2">Region</th>
-      <th class="border border-gray-600 p-2">Outgoing Bandwidth</th>
-    </tr>
-  </thead>
-  <tbody>
-    <%= for {region, value} <- @bandwidth do %>
-    <tr>
-      <th class="border border-gray-600 text-center"><%= region %></th>
-      <td class="border border-gray-600 text-center">
-        <input
-          class="my-4"
-          inputmode="numeric"
-          type="number"
-          min="0"
-          max="100"
-          step="1"
-          value={value}
-          name={"region-#{region}"}
-        />
-      </td>
-    </tr>
-    <% end %>
-  </tbody>
-</table>
+  <table class="table border  border-gray-600">
+    <thead class="bg-gray-300">
+      <tr>
+        <th class="border border-gray-600 p-2">Region</th>
+        <th class="border border-gray-600 p-2">Outgoing Bandwidth</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {region, value} <- @bandwidth do %>
+        <tr>
+          <th class="border border-gray-600 text-center"><%= region %></th>
+          <td class="border border-gray-600 text-center">
+            <input
+              class="my-4"
+              inputmode="numeric"
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value={value}
+              name={"region-#{region}"}
+            />
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </form>
+
+<section class="accordion mt-12">
+  <input type="checkbox" phx-update="ignore" id="addon-checkbox"/>
+  <label class="text-4xl font-bold">Add Ons</label>
+
+  <form class="mt-4" phx-change="change-addons">
+    <table class="table border  border-gray-600">
+      <tbody>
+        <tr>
+          <th class="border border-gray-600 p-4 text-center">compliance</th>
+          <td class="border border-gray-600 text-center">
+            <input type="hidden" name="compliance" value="no" />
+
+            <%= if @addons.compliance == "yes" do %>
+              <input type="checkbox" name="compliance" value="yes" checked />
+            <% else %>
+              <input type="checkbox" name="compliance" value="yes" />
+            <% end %>
+          </td>
+        </tr>
+
+        <tr>
+          <th class="border border-gray-600 p-4 text-center">support</th>
+          <td class="border border-gray-600 p-4 text-center">
+            <select class="mt-4" name="support">
+              <%= for type <- @support_types do %>
+                <%= if type == @addons.support do %>
+                  <option value={type} selected=""><%= type %></option>
+                <% else %>
+                  <option value={type}><%= type %></option>
+                <% end %>
+              <% end %>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+</section>
 
 <h1 class="mt-12 text-4xl font-bold mb-4">Total resource usage and cost estimate</h1>
 
 <table>
-<%= for {key, value} <- @price do %>
-<tr class="even:bg-gray-200">
-  <td class="text-right p-2"><%= key %></td>
-  <td class="text-right p-2"><%= value |> Currency.number_to_currency %></td>
-</tr>
-<% end %>
-<tr class="bg-green-200">
-  <td class="text-right p-2">Total</td>
-  <td class="text-right p-2"><%= @price |> Map.values |> Enum.sum |> Currency.number_to_currency %></td>
-</tr>
+  <%= for {key, value} <- @price |> Map.to_list() |> Enum.sort() do %>
+    <tr class="even:bg-gray-200">
+      <td class="text-right p-2"><%= key %></td>
+      <td class="text-right p-2"><%= value |> Currency.number_to_currency() %></td>
+    </tr>
+  <% end %>
+  <tr class="bg-green-200">
+    <td class="text-right p-2">Total</td>
+    <td class="text-right p-2">
+      <%= @price |> Map.values() |> Enum.sum() |> Currency.number_to_currency() %>
+    </td>
+  </tr>
 </table>

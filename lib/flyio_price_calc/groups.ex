@@ -2,6 +2,7 @@ defmodule FlyioPriceCalc.Group do
   defstruct [
     :region,
     :number,
+    :hours,
     :cpu_type,
     :cpu_count,
     :ram,
@@ -13,6 +14,7 @@ defmodule FlyioPriceCalc.Group do
       case key do
         "region" -> %{acc | region: value}
         "number" -> %{acc | number: to_integer(value)}
+        "hours" -> %{acc | hours: to_integer(value)}
         "cpu_type" -> %{acc | cpu_type: value}
         "cpu_count" -> %{acc | cpu_count: to_integer(value)}
         "ram" -> %{acc | ram: to_integer(value)}

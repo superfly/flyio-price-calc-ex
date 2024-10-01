@@ -15,10 +15,12 @@ defmodule FlyioPriceCalcWeb.Calc do
 
     {:ok, assign(socket,
       region: region,
-      groups: [%Group{region: region, number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}],
+      groups: [%Group{region: region, number: 1, cpu_type: "shared", cpu_count: 1, hours: 730, ram: 256, vol_size: 0}],
       regions: Regions.list_regions(),
-      cpu_types: ["shared", "performance"],
-      bandwidth: %{region => 0}
+      cpu_types: ["shared", "performance", "A10", "L40S", "A100 40G PCIe", "A100 80G SXM"],
+      bandwidth: %{region => 0},
+      addons: %{compliance: "no", support: "none"},
+      support_types: ["none", "standard", "premium", "enterprise"]
     ) |> price}
   end
 
@@ -29,25 +31,25 @@ defmodule FlyioPriceCalcWeb.Calc do
 
   def handle_event("add-machine", _, socket) do
     {:noreply, update(socket, :groups, fn groups ->
-        groups ++ [%Group{region: socket.assigns.region, number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 0}]
+        groups ++ [%Group{region: socket.assigns.region, number: 1, cpu_type: "shared", cpu_count: 1, hours: 730, ram: 256, vol_size: 0}]
     end) |> price}
   end
 
   def handle_event("add-pg-dev", _, socket) do
     {:noreply, update(socket, :groups, fn groups ->
-        groups ++ [%Group{region: socket.assigns.region, number: 1, cpu_type: "shared", cpu_count: 1, ram: 256, vol_size: 1}]
+        groups ++ [%Group{region: socket.assigns.region, number: 1, cpu_type: "shared", cpu_count: 1, hours: 730, ram: 256, vol_size: 1}]
     end) |> price}
   end
 
   def handle_event("add-pg-prod-small", _, socket) do
     {:noreply, update(socket, :groups, fn groups ->
-        groups ++ [%Group{region: socket.assigns.region, number: 3, cpu_type: "shared", cpu_count: 2, ram: 4096, vol_size: 40}]
+        groups ++ [%Group{region: socket.assigns.region, number: 3, cpu_type: "shared", cpu_count: 2, hours: 730, ram: 4096, vol_size: 40}]
     end) |> price}
   end
 
   def handle_event("add-pg-prod-large", _, socket) do
     {:noreply, update(socket, :groups, fn groups ->
-        groups ++ [%Group{region: socket.assigns.region, number: 3, cpu_type: "shared", cpu_count: 4, ram: 8192, vol_size: 80}]
+        groups ++ [%Group{region: socket.assigns.region, number: 3, cpu_type: "shared", cpu_count: 4, hours: 730, ram: 8192, vol_size: 80}]
     end) |> price}
   end
 
@@ -73,5 +75,14 @@ defmodule FlyioPriceCalcWeb.Calc do
     |> Enum.into(%{})
 
     {:noreply, assign(socket, bandwidth: bandwidth) |> price}
+  end
+
+  def handle_event("change-addons", formdata, socket) do
+    addons = %{
+      compliance: Map.get(formdata, "compliance", "no"),
+      support: Map.get(formdata, "support", "none")
+    }
+
+    {:noreply, assign(socket, addons: addons) |> price}
   end
 end
