@@ -98,7 +98,8 @@
               step="256"
               name={"ram-#{index+1}"}
               value={group.ram}
-            /> MB
+            />
+            <div>MB</div>
           </td>
           <td class="border border-gray-600 align-top text-center">
             <input
@@ -109,7 +110,8 @@
               step="1"
               name={"vol_size-#{index+1}"}
               value={group.vol_size}
-            /> GB
+            />
+            <div>GB</div>
             <div id="group-1"></div>
           </td>
         </tr>
@@ -126,7 +128,7 @@
             Add Machine Group
           </button>
         </td>
-        <td colspan="5" class="bg-cyan-200">
+        <td colspan="6" class="bg-cyan-200">
           <p>
             Add Postgres:
             <a phx-click="add-pg-dev" class="text-blue-600 hover:cursor-pointer hover:underline">
