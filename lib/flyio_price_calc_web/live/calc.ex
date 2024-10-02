@@ -3,6 +3,7 @@ defmodule FlyioPriceCalcWeb.Calc do
 
   alias FlyioPriceCalc.Group
   alias FlyioPriceCalc.Regions
+  alias FlyioPriceCalc.Reservation
 
   alias Number.Currency
 
@@ -20,13 +21,17 @@ defmodule FlyioPriceCalcWeb.Calc do
       cpu_types: ["shared", "performance", "A10", "L40S", "A100 40G PCIe", "A100 80G SXM"],
       bandwidth: %{region => 0},
       addons: %{compliance: "no", support: "none"},
-      support_types: ["none", "standard", "premium", "enterprise"]
+      support_types: ["none", "standard", "premium", "enterprise"],
+      reservations: [%Reservation{region: region, number: 0, cpu_type: "shared", plan: 1}],
+      reservation_cpu_types: Reservation.get_sizes()
     ) |> price}
   end
 
   def price(socket) do
+    {price, upfront} = FlyioPriceCalc.Price.calculate_price(socket.assigns)
+
     socket
-    |> assign(price: FlyioPriceCalc.Price.calculate_price(socket.assigns))
+    |> assign(price: price, upfront: upfront)
   end
 
   def handle_event("add-machine", _, socket) do
@@ -84,5 +89,22 @@ defmodule FlyioPriceCalcWeb.Calc do
     }
 
     {:noreply, assign(socket, addons: addons) |> price}
+  end
+
+  def handle_event("change-reservations", formdata, socket) do
+    reservations = formdata
+    |> Enum.filter(fn {key, _value} -> key |> String.contains?("-") end)
+    |> Enum.group_by(fn {key, _value} -> String.split(key, "-") |> List.last() end)
+    |> Enum.map(fn {_row, pairs} -> pairs |> Map.new(fn {key, value} ->
+      {String.split(key, "-") |> List.first, value} end) |> Reservation.from_map()
+    end)
+
+    {:noreply, assign(socket, reservations: reservations) |> price}
+  end
+
+  def handle_event("add-reservation", _, socket) do
+    {:noreply, update(socket, :reservations, fn reservations ->
+        reservations ++ [%Reservation{region: socket.assigns.region, number: 0, cpu_type: "shared", plan: 1}]
+    end) |> price}
   end
 end

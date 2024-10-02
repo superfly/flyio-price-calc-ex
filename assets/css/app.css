@@ -34,7 +34,7 @@
 
 .accordion > input[type="checkbox"]:checked ~ form {
     height: auto;
-    max-height: 12em;
+    max-height: fit-content;
 }
 
 .accordion > input[type="checkbox"]:checked + label:after {

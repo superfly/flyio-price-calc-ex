@@ -1,59 +1,139 @@
 defmodule FlyioPriceCalc.Price do
   alias FlyioPriceCalc.Regions
+  alias FlyioPriceCalc.Reservation
 
   def calculate_price(assigns) do
     price = %{}
 
     # shared: $0.695 per 1 vCPU per month
     # performance: $21 per 1 vCPU per month
-    compute =
-      Enum.reduce(assigns.groups, 0, fn group, acc ->
-        case group.cpu_type do
-          "performance" ->
-            acc +
-              group.number * group.hours / 720 * group.cpu_count * 21 *
-                Regions.get_markup(group.region)
+    compute_by_region_and_type =
+      Enum.map(assigns.groups, fn group ->
+        {group.region, group.cpu_type,
+         case group.cpu_type do
+           "performance" ->
+             group.number * group.hours / 720 * group.cpu_count * 21 *
+               Regions.get_markup(group.region)
 
-          "A10" ->
-            acc + group.number * group.hours * group.cpu_count * 1.50
+           "A10" ->
+             group.number * group.hours * group.cpu_count * 1.50
 
-          "L40S" ->
-            acc + group.number * group.hours * group.cpu_count * 1.25
+           "L40S" ->
+             group.number * group.hours * group.cpu_count * 1.25
 
-          "A100 40G PCIe" ->
-            acc + group.number * group.hours * group.cpu_count * 2.50
+           "A100 40G PCIe" ->
+             group.number * group.hours * group.cpu_count * 2.50
 
-          "A100 80G SXM" ->
-            acc + group.number * group.hours * group.cpu_count * 3.50
+           "A100 80G SXM" ->
+             group.number * group.hours * group.cpu_count * 3.50
 
-          _ ->
-            acc +
-              group.number * group.hours / 720 * group.cpu_count * 0.695 *
-                Regions.get_markup(group.region)
-        end
+           _ ->
+             group.number * group.hours / 720 * group.cpu_count * 0.695 *
+               Regions.get_markup(group.region)
+         end}
       end)
-
-    price =
-      case compute do
-        +0.0 -> price
-        -0.0 -> price
-        _ -> Map.put(price, :compute, compute)
-      end
+      |> Enum.group_by(fn {region, type, _} -> {region, type} end)
+      |> Enum.map(fn {key, values} ->
+        {key, Enum.reduce(values, 0, fn {_, _, value}, acc -> acc + value end)}
+      end)
 
     # -------------------
 
     # $5 per 1GB of RAM
-    memory =
-      Enum.reduce(assigns.groups, 0, fn group, acc ->
-        acc + group.number * group.ram / 1024 * 5
+    memory_by_region_and_type =
+      Enum.map(assigns.groups, fn group ->
+        {group.region, group.cpu_type, group.number * group.ram / 1024 * 5}
       end)
+      |> Enum.group_by(fn {region, type, _} -> {region, type} end)
+      |> Enum.map(fn {key, values} ->
+        {key, Enum.reduce(values, 0, fn {_, _, value}, acc -> acc + value end)}
+      end)
+
+    # -------------------
+
+    # tagged compute
+    tagged_compute =
+      compute_by_region_and_type
+      |> Enum.map(fn {key, value} -> {key, %{compute: value}} end)
+      |> Enum.into(%{})
+
+    # tagged memory
+    tagged_memory =
+      memory_by_region_and_type
+      |> Enum.map(fn {key, value} -> {key, %{memory: value}} end)
+      |> Enum.into(%{})
+
+    # merge tagged compute and memory
+    combined =
+      Map.merge(tagged_compute, tagged_memory, fn _key, compute, memory ->
+        Map.merge(compute, memory)
+      end)
+
+    # apply reservations
+    {compute_by_region_and_type, memory_by_region_and_type} =
+      combined
+      |> Enum.map(fn {key, values} ->
+        compute = values |> Map.get(:compute, 0)
+        memory = values |> Map.get(:memory, 0)
+
+        {region, type} = key
+
+        reservation =
+          assigns.reservations
+          |> Enum.filter(fn reservation ->
+            reservation.region == region and reservation.cpu_type == type
+          end)
+          |> Enum.reduce(0, fn reservation, acc ->
+            acc + Reservation.get_monthly(reservation.cpu_type, reservation.plan) * reservation.number
+          end)
+
+        cond do
+          reservation == 0 ->
+            {key, compute, memory}
+
+          reservation > compute + memory ->
+            {key, 0, 0}
+
+          reservation > compute ->
+            {key, 0, compute + memory - reservation}
+
+          true ->
+            {key, compute - reservation, memory}
+        end
+      end)
+      |> Enum.reduce({[], []}, fn {key, compute, memory}, {compute_acc, memory_acc} ->
+        {[{key, compute} | compute_acc], [{key, memory} | memory_acc]}
+      end)
+
+    # -------------------
+
+    # apply compute and memory prices, after reservations
+    compute =
+      compute_by_region_and_type
+      |> Enum.reduce(0, fn {_, value}, acc -> acc + value end)
+
+    price =
+      case compute do
+        0 -> price
+        _ -> Map.put(price, :compute, compute)
+      end
+
+    memory =
+      memory_by_region_and_type
+      |> Enum.reduce(0, fn {_, value}, acc -> acc + value end)
 
     price =
       case memory do
-        +0.0 -> price
-        -0.0 -> price
+        0 -> price
         _ -> Map.put(price, :memory, memory)
       end
+
+    # -------------------
+
+    upfront = assigns.reservations
+      |> Enum.reduce(0, fn reservation, acc ->
+        acc + Reservation.get_upfront(reservation.cpu_type, reservation.plan) * reservation.number
+      end)
 
     # -------------------
 
@@ -65,8 +145,7 @@ defmodule FlyioPriceCalc.Price do
 
     price =
       case volume do
-        +0.0 -> price
-        -0.0 -> price
+        0 -> price
         _ -> Map.put(price, :volume, volume)
       end
 
@@ -92,8 +171,7 @@ defmodule FlyioPriceCalc.Price do
 
     price =
       case bandwidth do
-        +0.0 -> price
-        -0.0 -> price
+        0 -> price
         _ -> Map.put(price, :bandwidth, bandwidth)
       end
 
@@ -119,6 +197,6 @@ defmodule FlyioPriceCalc.Price do
         _ -> price
       end
 
-    price
+    {price, upfront}
   end
 end

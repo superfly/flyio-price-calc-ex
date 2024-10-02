@@ -117,9 +117,8 @@
         </tr>
       <% end %>
 
-      <tr id="addmore">
+      <tr>
         <td colspan="2">
-          <input type="hidden" name="nextmachine" value="1" />
           <button
             type="button"
             phx-click="add-machine"
@@ -188,7 +187,7 @@
 </form>
 
 <section class="accordion mt-12">
-  <input type="checkbox" phx-update="ignore" id="addon-checkbox"/>
+  <input type="checkbox" phx-update="ignore" id="addon-checkbox" />
   <label class="text-4xl font-bold">Add Ons</label>
 
   <form class="mt-4" phx-change="change-addons">
@@ -226,6 +225,89 @@
   </form>
 </section>
 
+<section class="accordion mt-12">
+  <input type="checkbox" phx-update="ignore" id="reservations-checkbox" />
+  <label class="text-4xl font-bold">Reservations</label>
+
+  <form class="mt-4" phx-change="change-reservations">
+    <table class="table border  border-gray-600">
+      <thead class="bg-gray-300">
+        <tr>
+          <th class="border border-gray-600">Reservation</th>
+          <th class="border border-gray-600">Region</th>
+          <th class="border border-gray-600"># Machines</th>
+          <th class="border border-gray-600">CPU type</th>
+          <th class="border border-gray-600">Plan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for {reservation, index} <- Enum.with_index(@reservations) do %>
+          <tr>
+            <th class="border border-gray-600 text-center py-6"><%= index + 1 %></th>
+            <td class="border border-gray-600 align-top text-center">
+              <select class="mt-4" name={"region-#{index+1}"}>
+                <%= for region <- @regions do %>
+                  <%= if region == reservation.region do %>
+                    <option value={region} selected=""><%= region %></option>
+                  <% else %>
+                    <option value={region}><%= region %></option>
+                  <% end %>
+                <% end %>
+              </select>
+            </td>
+            <td class="border border-gray-600 align-top text-center">
+              <input
+                class="mt-4"
+                inputmode="numeric"
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                value={reservation.number}
+                name={"number-#{index+1}"}
+              />
+            </td>
+            <td class="border border-gray-600 align-top text-center">
+              <select class="mt-4" name={"cpu_type-#{index+1}"} value={reservation.cpu_type}>
+                <%= for cpu_type <- @reservation_cpu_types do %>
+                  <%= if cpu_type == reservation.cpu_type do %>
+                    <option value={cpu_type} selected=""><%= cpu_type %></option>
+                  <% else %>
+                    <option value={cpu_type}><%= cpu_type %></option>
+                  <% end %>
+                <% end %>
+              </select>
+            </td>
+            <td class="border border-gray-600 align-top text-center">
+              <select class="mt-4" name={"plan-#{index+1}"} value={reservation.plan}>
+                <%= for plan <- 1..3 do %>
+                  <%= if plan == reservation.plan do %>
+                    <option value={plan} selected=""><%= Reservation.get_text(reservation.cpu_type, plan) %></option>
+                  <% else %>
+                    <option value={plan}><%= Reservation.get_text(reservation.cpu_type, plan) %></option>
+                  <% end %>
+                <% end %>
+              </select>
+            </td>
+          </tr>
+        <% end %>
+
+        <tr>
+          <td colspan="2">
+            <button
+              type="button"
+              phx-click="add-reservation"
+              class="bg-cyan-700 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded"
+            >
+              Add Reservation
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+</section>
+
 <h1 class="mt-12 text-4xl font-bold mb-4">Total resource usage and cost estimate</h1>
 
 <table>
@@ -242,3 +324,11 @@
     </td>
   </tr>
 </table>
+
+<%= if @upfront > 0 do %>
+  <div class="mt-4">
+    <p>
+      Upfront payment: <%= @upfront |> Currency.number_to_currency() %>
+    </p>
+  </div>
+<% end %>
