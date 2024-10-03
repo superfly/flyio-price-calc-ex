@@ -13,7 +13,7 @@ defmodule FlyioPriceCalc.Price do
         {group.region, group.cpu_type,
          case group.cpu_type do
            "performance" ->
-             group.number * group.hours / 720 * group.cpu_count * 21 *
+             group.number * group.hours / 730 * group.cpu_count * 21 *
                Regions.get_markup(group.region)
 
            "A10" ->
@@ -29,7 +29,7 @@ defmodule FlyioPriceCalc.Price do
              group.number * group.hours * group.cpu_count * 3.50
 
            _ ->
-             group.number * group.hours / 720 * group.cpu_count * 0.695 *
+             group.number * group.hours / 730 * group.cpu_count * 0.695 *
                Regions.get_markup(group.region)
          end}
       end)
@@ -43,7 +43,7 @@ defmodule FlyioPriceCalc.Price do
     # $5 per 1GB of RAM
     memory_by_region_and_type =
       Enum.map(assigns.groups, fn group ->
-        {group.region, group.cpu_type, group.number * group.ram / 1024 * 5}
+        {group.region, group.cpu_type, group.number * group.hours / 730 * group.ram / 1024 * 5}
       end)
       |> Enum.group_by(fn {region, type, _} -> {region, type} end)
       |> Enum.map(fn {key, values} ->
