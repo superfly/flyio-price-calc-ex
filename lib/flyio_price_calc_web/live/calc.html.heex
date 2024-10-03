@@ -1,14 +1,33 @@
-<div class="w-full px-12 py-16 bg-slate-200">
+<div class="w-full px-12 py-8 bg-slate-200">
   <h1 class="text-4xl">Fly.io Price Estimator</h1>
   <h2 class="my-4 text-lg text-slate-400">What will this set of resources probably cost?</h2>
 </div>
 
-<ol class="mt-12 px-12 list-decimal">
-  <li>Create one machine group per set of identically-configured machines in the same region.</li>
-  <li>Tune the machine count and resources per machine for each machine group.</li>
-  <li>Tune the outgoing bandwidth used in each region</li>
-  <li>The cost estimate updates automatically</li>
-</ol>
+<h1 class="mt-12 text-4xl font-bold mb-4">Cost estimate (per month)</h1>
+
+<table>
+  <%= for {key, value} <- @price |> Map.to_list() |> Enum.sort() do %>
+    <tr class="even:bg-gray-200">
+      <td class="text-right p-2"><%= key %></td>
+      <td class="text-right p-2"><%= value |> Currency.number_to_currency() %></td>
+    </tr>
+  <% end %>
+  <tr class="bg-green-200">
+    <td class="text-right p-2">Total</td>
+    <td class="text-right p-2">
+      <%= @price |> Map.values() |> Enum.sum() |> Currency.number_to_currency() %>
+    </td>
+  </tr>
+</table>
+
+<%= if @upfront > 0 do %>
+  <div class="mt-4">
+    <p>
+      Upfront payment: <%= @upfront |> Currency.number_to_currency() %> (annual)
+    </p>
+  </div>
+<% end %>
+
 
 <hr class="my-8" />
 
@@ -514,28 +533,3 @@
     </table>
   </form>
 </section>
-
-<h1 class="mt-12 text-4xl font-bold mb-4">Total resource usage and cost estimate</h1>
-
-<table>
-  <%= for {key, value} <- @price |> Map.to_list() |> Enum.sort() do %>
-    <tr class="even:bg-gray-200">
-      <td class="text-right p-2"><%= key %></td>
-      <td class="text-right p-2"><%= value |> Currency.number_to_currency() %></td>
-    </tr>
-  <% end %>
-  <tr class="bg-green-200">
-    <td class="text-right p-2">Total</td>
-    <td class="text-right p-2">
-      <%= @price |> Map.values() |> Enum.sum() |> Currency.number_to_currency() %>
-    </td>
-  </tr>
-</table>
-
-<%= if @upfront > 0 do %>
-  <div class="mt-4">
-    <p>
-      Upfront payment: <%= @upfront |> Currency.number_to_currency() %>
-    </p>
-  </div>
-<% end %>
