@@ -3,7 +3,7 @@
   <h2 class="my-4 text-lg text-slate-400">What will this set of resources probably cost?</h2>
 </div>
 
-<h1 class="mt-12 text-4xl font-bold mb-4">Cost estimate (per month)</h1>
+<h1 class="mt-12 text-4xl font-bold mb-4">Monthly Costs</h1>
 
 <table>
   <%= for {key, value} <- @price |> Map.to_list() |> Enum.sort() do %>
@@ -197,7 +197,7 @@
               step="1"
               value={value}
               name={"region-#{region}"}
-            />
+            /> GB
           </td>
         </tr>
       <% end %>
