@@ -193,7 +193,7 @@
               inputmode="numeric"
               type="number"
               min="0"
-              max="100"
+              max="10000"
               step="1"
               value={value}
               name={"region-#{region}"}
@@ -221,8 +221,8 @@
               inputmode="numeric"
               type="number"
               min="0"
-              max="100"
-              step="1"
+              max="10000"
+              step="5"
               value={@tigris.data_storage}
               name="tigris-data_storage"
             /> GB
@@ -238,8 +238,8 @@
               inputmode="numeric"
               type="number"
               min="0"
-              max="100"
-              step="1"
+              max="10000"
+              step="10"
               value={@tigris.class_a}
               name="tigris-class_a"
             /> K requests
@@ -255,8 +255,8 @@
               inputmode="numeric"
               type="number"
               min="0"
-              max="100"
-              step="1"
+              max="10000"
+              step="100"
               value={@tigris.class_b}
               name="tigris-class_b"
             /> K requests
@@ -288,8 +288,8 @@
           inputmode="numeric"
           type="number"
           min="0"
-          max="100"
-          step="1"
+          max="10000"
+          step="100"
           value={@upstash.requests}
           name="upstash-requests"
         /> K requests
@@ -303,7 +303,7 @@
           inputmode="numeric"
           type="number"
           min="0"
-          max="100"
+          max="35"
           step="1"
           value={@upstash.regions}
           name="upstash-regions"
