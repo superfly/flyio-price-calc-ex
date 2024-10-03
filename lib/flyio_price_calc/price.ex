@@ -1,6 +1,7 @@
 defmodule FlyioPriceCalc.Price do
   alias FlyioPriceCalc.Regions
   alias FlyioPriceCalc.Reservation
+  alias FlyioPriceCalc.Upstash
 
   def calculate_price(assigns) do
     price = %{}
@@ -130,6 +131,29 @@ defmodule FlyioPriceCalc.Price do
 
     # -------------------
 
+    tigris =
+      max(0, (assigns.tigris.data_storage - 5) * 0.02) +
+      max(0, (assigns.tigris.class_a - 10) * 0.005) +
+      max(0, (assigns.tigris.class_b - 100) * 0.0005)
+
+    price =
+      case tigris do
+        0 -> price
+        _ -> Map.put(price, :tigris, tigris)
+      end
+
+    # -------------------
+
+    upstash = Upstash.get_per_month(assigns.upstash)
+
+    price =
+      case upstash do
+        0 -> price
+        _ -> Map.put(price, :upstash, upstash)
+      end
+
+    # -------------------
+
     upfront = assigns.reservations
       |> Enum.reduce(0, fn reservation, acc ->
         acc + Reservation.get_upfront(reservation.cpu_type, reservation.plan) * reservation.number
@@ -196,6 +220,24 @@ defmodule FlyioPriceCalc.Price do
         "yes" -> Map.put(price, :compliance, 99)
         _ -> price
       end
+
+    # -------------------
+
+    misc = (
+      assigns.misc.ipv4 * 2 +
+      assigns.misc.ssl_hostname * 0.10 +
+      assigns.misc.ssl_wildcard * 1 +
+      assigns.misc.static_ip * 0.005 +
+      assigns.misc.fks * 75
+    )
+
+    price =
+      case misc do
+        0.0 -> price
+        _ -> Map.put(price, :misc, misc)
+      end
+
+    # -------------------
 
     {price, upfront}
   end

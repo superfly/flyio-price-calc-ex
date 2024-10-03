@@ -2,8 +2,11 @@ defmodule FlyioPriceCalcWeb.Calc do
   use FlyioPriceCalcWeb, :live_view
 
   alias FlyioPriceCalc.Group
+  alias FlyioPriceCalc.Misc
   alias FlyioPriceCalc.Regions
   alias FlyioPriceCalc.Reservation
+  alias FlyioPriceCalc.Tigris
+  alias FlyioPriceCalc.Upstash
 
   alias Number.Currency
 
@@ -23,7 +26,10 @@ defmodule FlyioPriceCalcWeb.Calc do
       addons: %{compliance: "no", support: "none"},
       support_types: ["none", "standard", "premium", "enterprise"],
       reservations: [%Reservation{region: region, number: 0, cpu_type: "shared", plan: 1}],
-      reservation_cpu_types: Reservation.get_sizes()
+      reservation_cpu_types: Reservation.get_sizes(),
+      tigris: %Tigris{data_storage: 5, class_a: 10, class_b: 100},
+      upstash: %Upstash{plan: 0, requests: 100, regions: 1},
+      misc: %Misc{ipv4: 0, ssl_hostname: 0, ssl_wildcard: 0, static_ip: 0, fks: 0}
     ) |> price}
   end
 
@@ -82,6 +88,20 @@ defmodule FlyioPriceCalcWeb.Calc do
     {:noreply, assign(socket, bandwidth: bandwidth) |> price}
   end
 
+  def handle_event("change-extensions", formdata, socket) do
+    tigris = formdata
+    |> Enum.filter(fn {key, _value} -> key |> String.contains?("tigris-") end)
+    |> Enum.map(fn {key, value} -> {String.split(key, "-") |> List.last, value} end)
+    |> Tigris.from_map
+
+    upstash = formdata
+    |> Enum.filter(fn {key, _value} -> key |> String.contains?("upstash-") end)
+    |> Enum.map(fn {key, value} -> {String.split(key, "-") |> List.last, value} end)
+    |> Upstash.from_map(socket.assigns.upstash)
+
+    {:noreply, assign(socket, tigris: tigris, upstash: upstash) |> price}
+  end
+
   def handle_event("change-addons", formdata, socket) do
     addons = %{
       compliance: Map.get(formdata, "compliance", "no"),
@@ -106,5 +126,14 @@ defmodule FlyioPriceCalcWeb.Calc do
     {:noreply, update(socket, :reservations, fn reservations ->
         reservations ++ [%Reservation{region: socket.assigns.region, number: 0, cpu_type: "shared", plan: 1}]
     end) |> price}
+  end
+
+  def handle_event("change-misc", formdata, socket) do
+    misc = formdata
+    |> Enum.filter(fn {key, _value} -> key |> String.contains?("misc-") end)
+    |> Enum.map(fn {key, value} -> {String.split(key, "-") |> List.last, value} end)
+    |> Misc.from_map
+
+    {:noreply, assign(socket, misc: misc) |> price}
   end
 end
