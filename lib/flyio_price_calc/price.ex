@@ -115,7 +115,7 @@ defmodule FlyioPriceCalc.Price do
 
     price =
       case compute do
-        0 -> price
+        0.0 -> price
         _ -> Map.put(price, :compute, compute)
       end
 
@@ -125,7 +125,7 @@ defmodule FlyioPriceCalc.Price do
 
     price =
       case memory do
-        0 -> price
+        0.0 -> price
         _ -> Map.put(price, :memory, memory)
       end
 
@@ -169,7 +169,7 @@ defmodule FlyioPriceCalc.Price do
 
     price =
       case volume do
-        0 -> price
+        0.0 -> price
         _ -> Map.put(price, :volume, volume)
       end
 
@@ -195,7 +195,7 @@ defmodule FlyioPriceCalc.Price do
 
     price =
       case bandwidth do
-        0 -> price
+        0.0 -> price
         _ -> Map.put(price, :bandwidth, bandwidth)
       end
 

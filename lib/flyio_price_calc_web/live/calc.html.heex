@@ -371,7 +371,7 @@
         <%= for {reservation, index} <- Enum.with_index(@reservations) do %>
           <tr>
             <th class="border border-gray-600 text-center py-6"><%= index + 1 %></th>
-            <td class="border border-gray-600 align-top text-center">
+            <td class="border border-gray-600 align-top text-center px-2">
               <select class="mt-4" name={"region-#{index+1}"}>
                 <%= for region <- @regions do %>
                   <%= if region == reservation.region do %>
@@ -382,7 +382,7 @@
                 <% end %>
               </select>
             </td>
-            <td class="border border-gray-600 align-top text-center">
+            <td class="border border-gray-600 align-top text-center px-2">
               <input
                 class="mt-4"
                 inputmode="numeric"
@@ -394,7 +394,7 @@
                 name={"number-#{index+1}"}
               />
             </td>
-            <td class="border border-gray-600 align-top text-center">
+            <td class="border border-gray-600 align-top text-center px-2">
               <select class="mt-4" name={"cpu_type-#{index+1}"} value={reservation.cpu_type}>
                 <%= for cpu_type <- @reservation_cpu_types do %>
                   <%= if cpu_type == reservation.cpu_type do %>
@@ -405,7 +405,7 @@
                 <% end %>
               </select>
             </td>
-            <td class="border border-gray-600 align-top text-center">
+            <td class="border border-gray-600 align-top text-center px-2">
               <select class="mt-4" name={"plan-#{index+1}"} value={reservation.plan}>
                 <%= for plan <- 1..3 do %>
                   <%= if plan == reservation.plan do %>
